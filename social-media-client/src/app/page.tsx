@@ -36,28 +36,37 @@ const formSchema = z.object({
 })
 export default function Home() {
 
+  const loginMutation = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      return await LoginService(values);
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-  })
-
-  const mutation = useMutation({
-    mutationFn: LoginService,
-    onSuccess: (data) => {
-      console.log(data);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    mutation.mutate(values);
-    console.log(values)
+    loginMutation.mutate(values, {
+      onSuccess: (data) => {
+        // Handle successful login
+        if (data) {
+          // Store token if needed
+          console.log('Login successful');
+        }
+      },
+      onError: (error) => {
+        // Handle error
+        form.setError('root', {
+          type: 'manual',
+          message: error.message
+        });
+      }
+    });
   }
 
   return (
@@ -65,6 +74,11 @@ export default function Home() {
       <Card className="w-1/3">
         <CardHeader >
           <CardTitle className="text-center text-2xl">Login</CardTitle>
+          {loginMutation.error && (
+            <p className="text-red-500 text-center text-sm mt-2">
+              {loginMutation.error.message}
+            </p>
+          )}
         </CardHeader>
         <CardContent>
         <Form {...form}>
@@ -96,7 +110,13 @@ export default function Home() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button 
+            type="submit" 
+            disabled={loginMutation.isPending}
+            className="w-full"
+          >
+            {loginMutation.isPending ? "Logging in..." : "Login"}
+          </Button>
             </form>
           </Form>
         </CardContent>
