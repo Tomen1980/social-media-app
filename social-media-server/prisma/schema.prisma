@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum FriendshipStatus{
+  pending
+  accepted
+  rejected
+}
+
+model User {
+  id        String       @id @default(uuid())
+  username  String       @unique
+  email     String       @unique
+  password  String
+  refreshToken String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  Posts     Posts[]
+  Likes     Likes[]
+  Comments  Comment[]
+  sentFriendships     Friendships[] @relation("UserFriends")
+  receivedFriendships Friendships[] @relation("FriendToUser")
+}
+
+model Friendships {
+  id        String           @id @default(uuid())
+  user_id   String
+  friend_id String
+  status    FriendshipStatus @default(pending)
+  User      User             @relation("UserFriends", fields: [user_id], references: [id])
+  Friend    User             @relation("FriendToUser", fields: [friend_id], references: [id])
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model Posts {
+  id        String       @id @default(uuid())
+  user_id   String
+  content   String
+  image     String?
+  User      User         @relation(fields: [user_id], references: [id])
+  Likes     Likes[]
+  Comments  Comment[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Likes {
+  id        String       @id @default(uuid())
+  post_id   String
+  user_id   String
+  Post      Posts        @relation(fields: [post_id], references: [id])
+  User      User         @relation(fields: [user_id], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  @@unique([post_id, user_id])
+}
+
+model Comment {
+  id        String       @id @default(uuid())
+  post_id   String
+  user_id   String
+  content   String
+  Post      Posts        @relation(fields: [post_id], references: [id])
+  User      User         @relation(fields: [user_id], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
