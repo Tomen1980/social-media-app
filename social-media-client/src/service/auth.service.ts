@@ -7,7 +7,9 @@ import axios from 'axios';
 let api = process.env.API_SERVER;
 
 export const LoginService = async ( data:AuthDto ) =>{
-    await axios.post(`http://localhost:8000/api/auth/login`, data).then( res => {
+    await axios.post(`http://localhost:8000/api/auth/login`, data,{
+        withCredentials:true
+    }).then( res => {
         console.log(res.data);
         return res.data;
     }).catch( err => {
