@@ -22,14 +22,14 @@ class AuthController{
             const result = await AuthService.login(data);
 
             res.cookie("accessToken", result.data.token, {
-                maxAge: 15 * 60 * 60 * 1000 ,
+                maxAge: 15 * 60 * 1000 ,
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
             });
 
             res.cookie("refreshToken", result.data.refreshToken, {
-                maxAge: 30 * 60 * 60 * 1000 ,
+                maxAge: 30 * 60 * 1000 ,
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
@@ -60,13 +60,13 @@ class AuthController{
             console.log(id)
             const result = await AuthService.refreshToken(refreshToken,id)
             res.cookie("accessToken", result.data.token, {
-                maxAge: 15 * 60 * 60 * 1000,
+                maxAge: 15 * 60 * 1000,
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
             });
             res.cookie("refreshToken", result.data.refreshToken, {
-                maxAge: 30 * 60 * 60 * 1000,
+                maxAge: 30 * 60 * 1000,
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
